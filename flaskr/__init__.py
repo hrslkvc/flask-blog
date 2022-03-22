@@ -2,7 +2,7 @@ import os
 
 from flask import Flask
 
-from . import db, auth, posts
+from . import db, auth, posts, api
 
 
 def create_app(test_config=None):
@@ -26,5 +26,7 @@ def create_app(test_config=None):
 
     app.register_blueprint(auth.bp)
     app.register_blueprint(posts.bp)
+    app.register_blueprint(api.bp)
 
+    app.config['UPLOAD_FOLDER'] = os.path.join(app.root_path, 'static')
     return app

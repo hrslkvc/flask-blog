@@ -1,27 +1,35 @@
 {%extends 'base.html'%}
 {%block title%}Index{%endblock%}
 {%block content%}
-<div class="row mb-3">
+<div class="row mb-4">
     <div class="col-2">
         <a href="{{url_for('posts.create')}}" class="btn btn-primary">New post</a>
     </div>
 </div>
-<div class="row">
+<div class="row row-cols-1 row-cols-md-3">
     {%for post in posts%}
-    <div class="col-4">
-        <div class="card">
-            <img class="card-img-top" style="" src="https://picsum.photos/100?blur=1"
-                 alt="#">
-            <div class="card-body">
-                <div class="card-title">
-                    <h2>{{post['title']}}</h2>
+    <div class="col g-4">
+        <div class="card h-100">
+            <a href="{{url_for('posts.show', post_id=post['id'])}}" style="text-decoration: none; color: inherit;">
+                <img class="card-img-top" style="height: 30vh; object-fit: cover;"
+                     src="{{url_for('static', filename=post['image'])}}"
+                     alt="#">
+                <div class="card-body">
+                    <div class="card-title mb-4">
+                        <h2>{{post['title']}}</h2>
+                    </div>
+                    <div class="card-text">
+                        <p>{{post['body']|truncate(100)}}</p>
+                    </div>
                 </div>
-                <div class="card-text">
-                    <p>{{post['body']}}</p>
-                </div>
-                <div class="card-text">
-                    <small class="text-muted">{{post['created']}}</small>
-                </div>
+            </a>
+
+            <div class="card-footer text-muted">
+                <small>
+                    <a href="{{url_for('posts.by_author', username=post['author_name'])}}">{{post['author_name']}}</a>
+                    -
+                    {{post['created']}}
+                </small>
             </div>
         </div>
     </div>
