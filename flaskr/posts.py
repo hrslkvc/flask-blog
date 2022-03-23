@@ -3,8 +3,8 @@ import os
 from flask import Blueprint, render_template, request, redirect, url_for, g, abort, current_app
 from werkzeug.utils import secure_filename
 
+from flaskr.models.post import Post
 from .auth import login_required
-from .db import get_db
 from .services import post_service
 
 bp = Blueprint('posts', __name__)
@@ -13,8 +13,7 @@ bp = Blueprint('posts', __name__)
 @bp.route('/', methods=('GET', 'POST'))
 @login_required
 def index():
-    posts = post_service.get_many()
-
+    posts = Post.query.all()
     return render_template('posts/index.html', posts=posts)
 
 
@@ -23,7 +22,7 @@ def create():
     if request.method == 'POST':
         image = request.files['image']
         filename = secure_filename(image.filename)
-        db = get_db()
+
         db.execute("INSERT INTO posts (title, body, author_id, image) values (?, ?, ?, ?)",
                    (request.form['title'], request.form['body'], g.user['id'], filename))
         db.commit()

@@ -3,7 +3,8 @@ import functools
 from flask import Blueprint, render_template, request, flash, redirect, url_for, session, g
 from werkzeug.security import generate_password_hash, check_password_hash
 
-from flaskr.db import get_db
+from flaskr.models.user import User
+from .db import db
 
 bp = Blueprint('auth', __name__, url_prefix='/auth')
 
@@ -14,7 +15,7 @@ def load_logged_in_user():
     if not user_id:
         g.user = None
     else:
-        g.user = get_db().execute('SELECT * FROM users where id = ?', (user_id,)).fetchone()
+        g.user = User.query.filter_by(id=user_id).first()
 
 
 def login_required(view):
@@ -34,7 +35,6 @@ def register():
         password = request.form['password']
         confirm_password = request.form['confirm_password']
 
-        db = get_db()
         error = None
 
         if not username:
@@ -48,13 +48,10 @@ def register():
 
         if not error:
             try:
-                db.execute(
-                    'INSERT INTO users (username, password) VALUES (?, ?)',
-                    (username, generate_password_hash(password))
-                )
-
-                db.commit()
-            except db.IntegrityError:
+                user = User(username=username, password=generate_password_hash(password))
+                db.session.add(user)
+                db.session.commit()
+            except Exception as e:
                 error = f'User {username} is already registered.'
             else:
                 flash('Registered successfully, please log in', 'info')
@@ -72,21 +69,20 @@ def login():
         username = request.form['username']
         password = request.form['password']
 
-        db = get_db()
         error = None
 
-        user = db.execute('SELECT * FROM users where username = ?', (username,)).fetchone()
+        user = User.query.filter_by(username=username).first()
 
         if not user:
             error = 'User not found'
-        elif not check_password_hash(user['password'], password):
+        elif not check_password_hash(user.password, password):
             error = 'Invalid password'
 
         if error:
             flash(error, 'danger')
         else:
             session.clear()
-            session['user_id'] = user['id']
+            session['user_id'] = user.id
             return redirect(url_for('posts.index'))
 
     return render_template('auth/login.html')
@@ -96,3 +92,14 @@ def login():
 def logout():
     session.clear()
     return redirect(url_for('auth.login'))
+
+
+def identity(payload):
+    user_id = payload['identity']
+    return User.query.filter_by(id=user_id).first()
+
+
+def authenticate(username, password):
+    user = User.query.filter_by(username=username).first()
+    if user and check_password_hash(user.password, password):
+        return user

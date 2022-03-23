@@ -1,23 +1,34 @@
 from flask import Blueprint, jsonify
 
-from .services import post_service
+from .models.post import Post
+from .models.user import User
 
 bp = Blueprint('api', __name__, url_prefix='/api/posts')
 
 
 @bp.route('/')
 def get_posts():
-    posts = post_service.get_many()
+    posts = Post.query.all()
 
-    posts = [dict(post) for post in posts]
+    posts = [post.to_dict() for post in posts]
     return jsonify(posts)
 
 
 @bp.route('<post_id>')
 def get_post(post_id):
-    post = post_service.get_one(post_id, append_author=True)
+    post = Post.query.get(post_id)
 
     if not post:
         return jsonify({}), 404
 
-    return dict(post)
+    return jsonify(post.to_dict())
+
+
+@bp.route('/author/<username>')
+def get_posts_by_author(username):
+    author = User.query.filter_by(username=username).first()
+    posts = Post.query.filter_by(author_id=author.id).all()
+
+    posts = [post.to_dict() for post in posts]
+
+    return jsonify(posts)
