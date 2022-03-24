@@ -1,50 +1,58 @@
 import os
 
-from flask import Blueprint, render_template, request, redirect, url_for, g, abort, current_app
+from flask import Blueprint, request, current_app, jsonify
+from flask_jwt import jwt_required, current_identity
 from werkzeug.utils import secure_filename
 
+from flaskr.db import db
 from flaskr.models.post import Post
-from .auth import login_required
-from .services import post_service
+from flaskr.models.user import User
 
 bp = Blueprint('posts', __name__)
 
 
-@bp.route('/', methods=('GET', 'POST'))
-@login_required
+@bp.route('/posts', methods=('GET',))
+@jwt_required()
 def index():
     posts = Post.query.all()
-    return render_template('posts/index.html', posts=posts)
+
+    posts = [post.to_dict() for post in posts]
+    return jsonify(posts)
 
 
-@bp.route('/posts/create', methods=('GET', 'POST'))
+@bp.route('/posts', methods=('POST',))
+@jwt_required()
 def create():
-    if request.method == 'POST':
-        image = request.files['image']
-        filename = secure_filename(image.filename)
+    data = request.form
+    image = request.files['image']
+    filename = secure_filename(image.filename)
 
-        db.execute("INSERT INTO posts (title, body, author_id, image) values (?, ?, ?, ?)",
-                   (request.form['title'], request.form['body'], g.user['id'], filename))
-        db.commit()
+    post = Post(title=data['title'], body=data['body'], author_id=current_identity.id, image=image.filename)
+    db.session.add(post)
+    db.session.commit()
 
-        image.save(os.path.join(current_app.config['UPLOAD_FOLDER'], filename))
+    image.save(os.path.join(current_app.config['UPLOAD_FOLDER'], filename))
 
-        return redirect(url_for('posts.index'))
-
-    return render_template('posts/create.html')
+    return jsonify({})
 
 
-@bp.route('/posts/<post_id>')
+@bp.route('/posts/<post_id>', methods=('GET',))
+@jwt_required()
 def show(post_id):
-    post = post_service.get_one(post_id)
+    post = Post.query.get(post_id)
 
     if not post:
-        abort(404)
+        return jsonify({}), 404
 
-    return render_template('posts/show.html', post=post)
+    return jsonify(post.to_dict())
 
 
-@bp.route('/author/<username>')
+@bp.route('/author/<username>', methods=('GET',))
+@jwt_required()
 def by_author(username):
-    posts = post_service.get_many_by_author(username)
-    return render_template('posts/index.html', posts=posts)
+    author = User.query.filter_by(username=username).first()
+    posts = Post.query.filter_by(author_id=author.id).all()
+
+    posts = [post.to_dict() for post in posts]
+
+    return jsonify(posts)
