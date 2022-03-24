@@ -1,7 +1,7 @@
 import os
 
 from flask import Blueprint, request, current_app, jsonify
-from flask_jwt import jwt_required, current_identity
+from flask_jwt_extended import jwt_required, get_jwt_identity
 from werkzeug.utils import secure_filename
 
 from flaskr.db import db
@@ -27,13 +27,13 @@ def create():
     image = request.files['image']
     filename = secure_filename(image.filename)
 
-    post = Post(title=data['title'], body=data['body'], author_id=current_identity.id, image=image.filename)
+    post = Post(title=data['title'], body=data['body'], author_id=get_jwt_identity()["id"], image=image.filename)
     db.session.add(post)
     db.session.commit()
 
     image.save(os.path.join(current_app.config['UPLOAD_FOLDER'], filename))
 
-    return jsonify({})
+    return jsonify(post.to_dict())
 
 
 @bp.route('/posts/<post_id>', methods=('GET',))

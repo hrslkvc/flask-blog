@@ -1,4 +1,5 @@
 from flask import Blueprint, request, jsonify
+from flask_jwt_extended import create_access_token
 from sqlalchemy.exc import IntegrityError
 from werkzeug.security import generate_password_hash, check_password_hash
 
@@ -35,9 +36,21 @@ def register():
         return {'error': error}, 400
 
 
-def identity(payload):
-    user_id = payload['identity']
-    return User.query.filter_by(id=user_id).first()
+@bp.route('/login', methods=('POST',))
+def login():
+    username = request.json.get("username", None)
+    password = request.json.get("password", None)
+
+    if not username or not password:
+        return jsonify("Username and password are required"), 401
+
+    user = User.query.filter_by(username=username).first()
+
+    if not user and not check_password_hash(user.password, password):
+        return jsonify("Invalid credentials"), 401
+
+    access_token = create_access_token(user.to_dict())
+    return jsonify({"access_token": access_token, "user": user.to_dict()})
 
 
 def authenticate(username, password):

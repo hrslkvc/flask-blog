@@ -1,12 +1,13 @@
+import datetime
 import os
 
 from flask import Flask
 from flask_cors import CORS
-from flask_jwt import JWT
+from flask_jwt_extended import JWTManager
 
-from flaskr.models.user import User
-from . import auth, posts, api
-from .db import db
+from . import auth, posts, api, comments
+from .db import db, db_create_all
+from .models import user, post, comment
 
 
 def create_app(test_config=None):
@@ -15,7 +16,8 @@ def create_app(test_config=None):
         SECRET_KEY='dev',
         SQLALCHEMY_DATABASE_URI='sqlite:///' + os.path.join(app.instance_path, 'flaskr.sqlite'),
         SQLALCHEMY_TRACK_MODIFICATIONS=False,
-        JWT_AUTH_URL_RULE='/auth/login'
+        JWT_AUTH_URL_RULE='/auth/login',
+        JWT_EXPIRATION_DELTA=datetime.timedelta(seconds=86400)
     )
 
     if test_config is None:
@@ -31,10 +33,15 @@ def create_app(test_config=None):
     app.register_blueprint(auth.bp)
     app.register_blueprint(posts.bp)
     app.register_blueprint(api.bp)
+    app.register_blueprint(comments.bp)
 
     app.config['UPLOAD_FOLDER'] = os.path.join(app.root_path, 'static')
+
     db.app = app
     db.init_app(app)
+
+    app.cli.add_command(db_create_all)
+
     CORS(app)
-    jwt = JWT(app, auth.authenticate, auth.identity)
+    JWTManager(app)
     return app
