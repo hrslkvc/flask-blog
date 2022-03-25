@@ -10,7 +10,8 @@ class Comment(db.Model):
     text = db.Column(db.Text, nullable=False)
     post_id = db.Column(db.Integer, db.ForeignKey('posts.id'), nullable=False)
     author_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
-    parent_id = db.Column(db.Integer, default=None)
+
+    # parent_id = db.Column(db.Integer, default=None)
 
     def to_dict(self):
         return {
