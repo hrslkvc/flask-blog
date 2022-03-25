@@ -1,5 +1,5 @@
 from flask import Blueprint, request, jsonify
-from flask_jwt_extended import create_access_token
+from flask_jwt_extended import create_access_token, jwt_required, get_jwt_identity
 from sqlalchemy.exc import IntegrityError
 from werkzeug.security import generate_password_hash, check_password_hash
 
@@ -56,7 +56,7 @@ def login():
     return jsonify({"access_token": access_token, "user": user.to_dict()})
 
 
-def authenticate(username, password):
-    user = User.query.filter_by(username=username).first()
-    if user and check_password_hash(user.password, password):
-        return user
+@bp.route('/current-user', methods=("GET",))
+@jwt_required()
+def current_user():
+    return jsonify(get_jwt_identity())
