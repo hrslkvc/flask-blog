@@ -42,12 +42,15 @@ def login():
     password = request.json.get("password", None)
 
     if not username or not password:
-        return jsonify("Username and password are required"), 401
+        return jsonify({"error": "Username and password are required"}), 401
 
     user = User.query.filter_by(username=username).first()
 
-    if not user and not check_password_hash(user.password, password):
-        return jsonify("Invalid credentials"), 401
+    if not user:
+        return jsonify({"error": "Username doesnt exist"}), 401
+
+    if not check_password_hash(user.password, password):
+        return jsonify({"error": "Invalid credentials"}), 401
 
     access_token = create_access_token(user.to_dict())
     return jsonify({"access_token": access_token, "user": user.to_dict()})
