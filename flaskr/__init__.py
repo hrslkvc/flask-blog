@@ -7,7 +7,7 @@ from flask_cors import CORS
 from flask_jwt_extended import JWTManager
 from flask_migrate import Migrate
 
-from . import auth, posts, api, comments
+from . import auth, posts, api, comments, post_likes
 from .db import db, db_create_all
 from .models import user, post, comment
 
@@ -38,6 +38,7 @@ def create_app(test_config=None):
     app.register_blueprint(posts.bp)
     app.register_blueprint(api.bp)
     app.register_blueprint(comments.bp)
+    app.register_blueprint(post_likes.bp)
 
     app.config['UPLOAD_FOLDER'] = os.path.join(app.root_path, 'static')
 

@@ -1,3 +1,5 @@
+import datetime
+
 from flaskr.db import db
 
 
@@ -8,9 +10,13 @@ class User(db.Model):
     password = db.Column(db.String, nullable=False)
     posts = db.relationship('Post', backref='author')
     comments = db.relationship('Comment', backref='author')
+    created_at = db.Column(db.DateTime, default=datetime.datetime.utcnow)
+    liked_posts = db.relationship('PostLike', backref='user')
 
     def to_dict(self):
         return {
             'id': self.id,
             'username': self.username,
+            'created_at': self.created_at,
+            'post_count': len(self.posts)
         }

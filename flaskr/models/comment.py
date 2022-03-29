@@ -18,5 +18,6 @@ class Comment(db.Model):
             "created_at": self.created_at,
             "text": self.text,
             "post_id": self.post_id,
-            "author_id": self.author_id
+            "author_id": self.author_id,
+            "author_name": self.author.username
         }
