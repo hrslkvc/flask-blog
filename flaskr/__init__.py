@@ -18,7 +18,7 @@ def create_app(test_config=None):
     app = Flask(__name__, instance_relative_config=True)
     app.config.from_mapping(
         SECRET_KEY='dev',
-        SQLALCHEMY_DATABASE_URI=os.environ['DATABASE_URL'],
+        SQLALCHEMY_DATABASE_URI=os.environ['PG_DATABASE_URL'],
         SQLALCHEMY_TRACK_MODIFICATIONS=False,
         JWT_AUTH_URL_RULE='/auth/login',
         JWT_EXPIRATION_DELTA=datetime.timedelta(seconds=86400)
