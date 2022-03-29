@@ -5,6 +5,7 @@ from dotenv import load_dotenv
 from flask import Flask
 from flask_cors import CORS
 from flask_jwt_extended import JWTManager
+from flask_migrate import Migrate
 
 from . import auth, posts, api, comments
 from .db import db, db_create_all
@@ -13,6 +14,7 @@ from .models import user, post, comment
 
 def create_app(test_config=None):
     load_dotenv()
+
     app = Flask(__name__, instance_relative_config=True)
     app.config.from_mapping(
         SECRET_KEY='dev',
@@ -43,7 +45,7 @@ def create_app(test_config=None):
     db.init_app(app)
 
     app.cli.add_command(db_create_all)
-
+    Migrate(app, db)
     CORS(app)
     JWTManager(app)
     return app

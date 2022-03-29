@@ -9,4 +9,4 @@ db = SQLAlchemy()
 @with_appcontext
 def db_create_all():
     db.drop_all()
-    db.create_all()
+    # db.create_all()
