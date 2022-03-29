@@ -1,5 +1,7 @@
 import datetime
 
+from flask import url_for
+
 from flaskr.db import db
 
 
@@ -20,6 +22,7 @@ class Post(db.Model):
             'id': self.id,
             'created': self.created_at,
             'image': self.image,
+            'image_url': url_for('static', filename=self.image),
             'title': self.title,
             'body': self.body,
             'author': self.author.to_dict(),

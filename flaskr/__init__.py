@@ -1,6 +1,7 @@
 import datetime
 import os
 
+from dotenv import load_dotenv
 from flask import Flask
 from flask_cors import CORS
 from flask_jwt_extended import JWTManager
@@ -11,10 +12,11 @@ from .models import user, post, comment
 
 
 def create_app(test_config=None):
+    load_dotenv()
     app = Flask(__name__, instance_relative_config=True)
     app.config.from_mapping(
         SECRET_KEY='dev',
-        SQLALCHEMY_DATABASE_URI='sqlite:///' + os.path.join(app.instance_path, 'flaskr.sqlite'),
+        SQLALCHEMY_DATABASE_URI=os.environ['DATABASE_URL'],
         SQLALCHEMY_TRACK_MODIFICATIONS=False,
         JWT_AUTH_URL_RULE='/auth/login',
         JWT_EXPIRATION_DELTA=datetime.timedelta(seconds=86400)

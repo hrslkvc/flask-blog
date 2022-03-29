@@ -13,8 +13,9 @@ lazy-object-proxy==1.7.1
 MarkupSafe==2.1.0
 mccabe==0.6.1
 platformdirs==2.5.1
+psycopg2-binary==2.9.3
 PyJWT==2.3.0
-python-dotenv==0.19.2
+python-dotenv==0.20.0
 six==1.16.0
 SQLAlchemy==1.4.32
 toml==0.10.2
