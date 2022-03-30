@@ -59,9 +59,9 @@ def by_author(username):
     return jsonify(posts)
 
 
-@bp.route('/userinfo/<user_id>', methods=('GET',))
+@bp.route('/userinfo/<username>', methods=('GET',))
 @jwt_required()
-def userinfo(user_id):
-    user = User.query.get(user_id)
+def userinfo(username):
+    user = User.query.filter_by(username=username).first()
 
     return jsonify(user.to_dict())
