@@ -18,5 +18,7 @@ class User(db.Model):
             'id': self.id,
             'username': self.username,
             'created_at': self.created_at,
-            'post_count': len(self.posts)
+            'post_count': len(self.posts),
+            'comment_count': len(self.comments),
+            'like_count': len(self.liked_posts)
         }

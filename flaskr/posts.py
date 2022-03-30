@@ -25,9 +25,10 @@ def index():
 def create():
     data = request.form
     image = request.files['image']
+
     filename = secure_filename(image.filename.replace(' ', ''))
 
-    post = Post(title=data['title'], body=data['body'], author_id=get_jwt_identity()["id"], image=image.filename)
+    post = Post(title=data['title'], body=data['body'], author_id=get_jwt_identity()["id"], image=filename)
     db.session.add(post)
     db.session.commit()
 
@@ -56,3 +57,11 @@ def by_author(username):
     posts = [post.to_dict() for post in posts]
 
     return jsonify(posts)
+
+
+@bp.route('/userinfo/<user_id>', methods=('GET',))
+@jwt_required()
+def userinfo(user_id):
+    user = User.query.get(user_id)
+
+    return jsonify(user.to_dict())
