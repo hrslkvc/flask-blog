@@ -43,7 +43,6 @@ def like(post_id):
     post.like_count += 1
     post_like = PostLike(user_id=get_jwt_identity()["id"], post_id=post_id)
 
-    db.session.add(post)
-    db.session.add(post_like)
+    db.session.add_all([post, post_like])
     db.session.commit()
     return jsonify({})

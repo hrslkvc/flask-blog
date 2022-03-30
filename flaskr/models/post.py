@@ -28,5 +28,6 @@ class Post(db.Model):
             'body': self.body,
             'author': self.author.to_dict(),
             'comments': [comment.to_dict() for comment in self.comments],
+            'comment_count': self.comment_count,
             'like_count': self.like_count
         }

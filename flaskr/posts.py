@@ -25,7 +25,7 @@ def index():
 def create():
     data = request.form
     image = request.files['image']
-    filename = secure_filename(image.filename)
+    filename = secure_filename(image.filename.replace(' ', ''))
 
     post = Post(title=data['title'], body=data['body'], author_id=get_jwt_identity()["id"], image=image.filename)
     db.session.add(post)
