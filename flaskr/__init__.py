@@ -1,4 +1,3 @@
-import datetime
 import os
 
 from dotenv import load_dotenv
@@ -21,7 +20,7 @@ def create_app(test_config=None):
         SQLALCHEMY_DATABASE_URI=os.environ['PG_DATABASE_URL'],
         SQLALCHEMY_TRACK_MODIFICATIONS=False,
         JWT_AUTH_URL_RULE='/auth/login',
-        JWT_EXPIRATION_DELTA=datetime.timedelta(seconds=86400)
+        JWT_ACCESS_TOKEN_EXPIRES=86400
     )
 
     if test_config is None:
