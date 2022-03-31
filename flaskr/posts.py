@@ -37,6 +37,34 @@ def create():
     return jsonify(post.to_dict())
 
 
+@bp.route('/posts/<post_id>', methods=('PUT',))
+@jwt_required()
+def update(post_id):
+    post = Post.query.get(post_id)
+
+    if not post:
+        return jsonify({}), 404
+
+    if get_jwt_identity()['id'] != post.author_id:
+        return jsonify({'error': 'Unauthorized'}), 402
+
+    data = request.form
+    image = request.files['image']
+
+    filename = secure_filename(image.filename.replace(' ', ''))
+
+    post.title = data['title']
+    post.body = data['body']
+    post.image = filename
+    
+    db.session.add(post)
+    db.session.commit()
+
+    image.save(os.path.join(current_app.config['UPLOAD_FOLDER'], filename))
+
+    return jsonify(post.to_dict())
+
+
 @bp.route('/posts/<post_id>', methods=('GET',))
 @jwt_required()
 def show(post_id):
@@ -61,7 +89,7 @@ def delete(post_id):
 
     db.session.delete(post)
     db.session.commit()
-    
+
     return jsonify({})
 
 
