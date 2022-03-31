@@ -45,4 +45,17 @@ def like(post_id):
 
     db.session.add_all([post, post_like])
     db.session.commit()
-    return jsonify({})
+    return jsonify(post.to_dict())
+
+
+@bp.route('/likes/<post_id>/unlike', methods=('POST',))
+@jwt_required()
+def unlike(post_id):
+    post = Post.query.get(post_id)
+    post.like_count -= 1
+    post_like = PostLike.query.filter_by(user_id=get_jwt_identity()["id"], post_id=post_id).first()
+
+    db.session.delete(post_like)
+    db.session.add(post)
+    db.session.commit()
+    return jsonify(post.to_dict())
