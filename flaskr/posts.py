@@ -48,6 +48,23 @@ def show(post_id):
     return jsonify(post.to_dict())
 
 
+@bp.route('/posts/<post_id>', methods=('DELETE',))
+@jwt_required()
+def delete(post_id):
+    post = Post.query.get(post_id)
+
+    if not post:
+        return jsonify({}), 404
+
+    if get_jwt_identity()['id'] != post.author_id:
+        return jsonify({'error': 'Unauthorized'}), 402
+
+    db.session.delete(post)
+    db.session.commit()
+    
+    return jsonify({})
+
+
 @bp.route('/author/<username>', methods=('GET',))
 @jwt_required()
 def by_author(username):

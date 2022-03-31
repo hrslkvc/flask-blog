@@ -13,9 +13,9 @@ class Post(db.Model):
     title = db.Column(db.Text, nullable=False)
     body = db.Column(db.Text, nullable=False)
     author_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
-    comments = db.relationship('Comment', backref='post')
+    comments = db.relationship('Comment', backref='post', cascade='all, delete-orphan')
     comment_count = db.Column(db.Integer, nullable=False, default=0)
-    likes = db.relationship('PostLike', backref='post')
+    likes = db.relationship('PostLike', backref='post', cascade='all, delete-orphan')
     like_count = db.Column(db.Integer, nullable=False, default=0)
 
     def to_dict(self):
