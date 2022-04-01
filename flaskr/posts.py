@@ -49,18 +49,12 @@ def update(post_id):
         return jsonify({'error': 'Unauthorized'}), 402
 
     data = request.form
-    image = request.files['image']
-
-    filename = secure_filename(image.filename.replace(' ', ''))
 
     post.title = data['title']
     post.body = data['body']
-    post.image = filename
-    
+
     db.session.add(post)
     db.session.commit()
-
-    image.save(os.path.join(current_app.config['UPLOAD_FOLDER'], filename))
 
     return jsonify(post.to_dict())
 
