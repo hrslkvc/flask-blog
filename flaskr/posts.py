@@ -48,7 +48,7 @@ def update(post_id):
     if get_jwt_identity()['id'] != post.author_id:
         return jsonify({'error': 'Unauthorized'}), 402
 
-    data = request.form
+    data = request.json
 
     post.title = data['title']
     post.body = data['body']
